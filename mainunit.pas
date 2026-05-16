@@ -9868,26 +9868,70 @@ end;
 {$ENDIF}
 
 procedure TGLForm1.FormCreate(Sender: TObject);
+var
+  LogoPanel: TPanel;
+  LogoImage: TImage;
+
 begin
+
+  // MedMarvel Branding Panel
+  LogoPanel := TPanel.Create(Self);
+
+  if Assigned(ToolPanel) then
+    LogoPanel.Parent := ToolPanel
+  else
+    LogoPanel.Parent := Self;
+
+  LogoPanel.Align := alTop;
+  LogoPanel.Height := 150;
+  LogoPanel.BevelOuter := bvNone;
+  LogoPanel.Color := clBlack;
+  LogoPanel.ParentColor := False;
+  LogoPanel.Caption := '';
+
+  // Logo Image
+  LogoImage := TImage.Create(Self);
+  LogoImage.Parent := LogoPanel;
+
+  // Fill entire panel
+  LogoImage.Align := alClient;
+  LogoImage.Stretch := True;
+  LogoImage.Proportional := False;
+  LogoImage.Center := False;
+
+  // Remove borders/margins
+  LogoImage.BorderSpacing.Left := 0;
+  LogoImage.BorderSpacing.Right := 0;
+  LogoImage.BorderSpacing.Top := 0;
+  LogoImage.BorderSpacing.Bottom := 0;
+
+  // Load image safely
+  if FileExists('MedMarvel_Logo.jpg') then
+    LogoImage.Picture.LoadFromFile('MedMarvel_Logo.jpg');
+
  {$IFDEF METALAPI}
- ViewGPU1 :=  TMetalControl.Create(CenterPanel);
+ ViewGPU1 := TMetalControl.Create(CenterPanel);
  Vol1 := TGPUVolume.Create(ViewGPU1);
  {$ELSE}
- ViewGPU1 :=  TOpenGLControl.Create(GLForm1);
+ ViewGPU1 := TOpenGLControl.Create(GLForm1);
+
  {$IFDEF COREGL}
- ViewGPU1.OpenGLMajorVersion:= 3;
- ViewGPU1.OpenGLMinorVersion:= 3;
+ ViewGPU1.OpenGLMajorVersion := 3;
+ ViewGPU1.OpenGLMinorVersion := 3;
  {$ELSE}
- ViewGPU1.OpenGLMajorVersion:= 2;
- ViewGPU1.OpenGLMinorVersion:= 1;
+ ViewGPU1.OpenGLMajorVersion := 2;
+ ViewGPU1.OpenGLMinorVersion := 1;
  {$ENDIF}
+
  {$IFDEF LINE3D}
- ViewGPU1.DepthBits:= 24;
+ ViewGPU1.DepthBits := 24;
  {$ELSE}
- ViewGPU1.DepthBits:= 0;
+ ViewGPU1.DepthBits := 0;
  {$ENDIF}
+
  Vol1 := TGPUVolume.Create(ViewGPU1);
  {$ENDIF}
+
 end;
 
 function TGLForm1.DefaultImage():string;
