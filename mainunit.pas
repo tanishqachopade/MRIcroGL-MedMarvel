@@ -9931,6 +9931,18 @@ begin
 
  Vol1 := TGPUVolume.Create(ViewGPU1);
  {$ENDIF}
+ // Hide unwanted File menu items
+OpenAltasMenu.Visible := False;
+OpenAFNIMenu.Visible := False;
+OpenFSLMenu.Visible := False;
+AddOverlayMenu.Visible := False;
+SaveMenu.Visible := False;
+SaveNIfTIMenu.Visible := False;
+
+// Keep only x_rain in color dropdown
+LayerColorDrop.Items.Clear;
+LayerColorDrop.Items.Add('x_rain');
+LayerColorDrop.ItemIndex := 0;
 
 end;
 
