@@ -52,6 +52,7 @@ unit mainunit;
 interface
 {$include opts.inc} //for  DEFINE MOSAICS
 uses
+  process,
   {$IFDEF MATT1}umat, {$ENDIF}
   {$IFDEF METALAPI}
   	MetalPipeline,  Metal,MetalControl, mtlvolume2,
@@ -368,6 +369,8 @@ type
     LayerBox: TGroupBox;
     MainMenu: TMainMenu;
     FileMenu: TMenuItem;
+Menu3DView: TMenuItem;
+Open3DViewerMenu: TMenuItem;
     ResetDefaultsMenu: TMenuItem;
     DisplayMenu: TMenuItem;
     CoronalMenu: TMenuItem;
@@ -669,6 +672,8 @@ type
     procedure ForceOverlayUpdate();
     procedure ZoomBtnClick(Sender: TObject);
   private
+  procedure OpenPyVistaViewer(const NiftiFile: string);
+  procedure OpenIn3DViewClick(Sender: TObject);
     //
   end;
 
@@ -736,6 +741,33 @@ begin
 {$ENDIF}
 end;
 {$ENDIF}
+
+procedure TGLForm1.OpenPyVistaViewer(const NiftiFile: string);
+var
+  AProcess: TProcess;
+begin
+  AProcess := TProcess.Create(nil);
+
+  AProcess.Executable := 'C:\Python314\python.exe';
+
+  AProcess.Parameters.Add('C:\Users\Amit\Desktop\MRIcroGL12\viewer.py');
+  AProcess.Parameters.Add(NiftiFile);
+
+  AProcess.Options := [poNewProcessGroup];
+
+  ShowMessage('Launching PyVista...');
+
+  AProcess.Execute;
+  AProcess.Free;
+end;
+
+
+procedure TGLForm1.OpenIn3DViewClick(Sender: TObject);
+begin
+  OpenPyVistaViewer('C:\Users\Amit\Downloads\brain.nii.gz');
+end;
+
+
 
 procedure GenerateClustersCore(var v: TNIfTI; thresh, mm: single; method: integer; isDarkAndBright: boolean);
 var
@@ -9931,20 +9963,36 @@ begin
 
  Vol1 := TGPUVolume.Create(ViewGPU1);
  {$ENDIF}
- // Hide unwanted File menu items
-OpenAltasMenu.Visible := False;
-OpenAFNIMenu.Visible := False;
-OpenFSLMenu.Visible := False;
-AddOverlayMenu.Visible := False;
-SaveMenu.Visible := False;
-SaveNIfTIMenu.Visible := False;
 
-// Keep only x_rain in color dropdown
-LayerColorDrop.Items.Clear;
-LayerColorDrop.Items.Add('x_rain');
-LayerColorDrop.ItemIndex := 0;
+ // Hide unwanted File menu items
+ OpenAltasMenu.Visible := False;
+ OpenAFNIMenu.Visible := False;
+ OpenFSLMenu.Visible := False;
+ AddOverlayMenu.Visible := False;
+ SaveMenu.Visible := False;
+ SaveNIfTIMenu.Visible := False;
+
+ // Keep only x_rain in color dropdown
+ LayerColorDrop.Items.Clear;
+ LayerColorDrop.Items.Add('x_rain');
+ LayerColorDrop.ItemIndex := 0;
+
+ // Create 3D View menu
+ Menu3DView := TMenuItem.Create(Self);
+ Menu3DView.Caption := '3D View';
+ MainMenu.Items.Add(Menu3DView);
+
+ // Create submenu item
+ Open3DViewerMenu := TMenuItem.Create(Self);
+ Open3DViewerMenu.Caption := 'Open in 3D Viewer';
+ Open3DViewerMenu.OnClick := MenuItem3Click;
+
+ Menu3DView.Add(Open3DViewerMenu);
+
+ OpenPyVistaViewer('C:\Users\Amit\Downloads\brain.nii.gz');
 
 end;
+
 
 function TGLForm1.DefaultImage():string;
 var
