@@ -672,6 +672,7 @@ Open3DViewerMenu: TMenuItem;
     procedure ForceOverlayUpdate();
     procedure ZoomBtnClick(Sender: TObject);
   private
+  SelectedMode: string;
   procedure OpenPyVistaViewer(const NiftiFile: string);
   procedure OpenIn3DViewClick(Sender: TObject);
     //
@@ -9906,6 +9907,25 @@ var
 
 begin
 
+case QuestionDlg(
+  'MedMarvel Workflow',
+  'Select Workflow',
+  mtConfirmation,
+  [
+    mrYes, 'Fusion',
+    mrNo, 'Volumetry'
+  ],
+  ''
+) of
+
+  mrYes:
+    SelectedMode := 'fusion';
+
+  mrNo:
+    SelectedMode := 'volumetry';
+
+end;
+
   // MedMarvel Branding Panel
   LogoPanel := TPanel.Create(Self);
 
@@ -9968,9 +9988,10 @@ begin
  OpenAltasMenu.Visible := False;
  OpenAFNIMenu.Visible := False;
  OpenFSLMenu.Visible := False;
- AddOverlayMenu.Visible := False;
+ AddOverlayMenu.Visible := True;
  SaveMenu.Visible := False;
  SaveNIfTIMenu.Visible := False;
+ 
 
  // Keep only x_rain in color dropdown
  LayerColorDrop.Items.Clear;
@@ -9988,8 +10009,6 @@ begin
  Open3DViewerMenu.OnClick := MenuItem3Click;
 
  Menu3DView.Add(Open3DViewerMenu);
-
- OpenPyVistaViewer('C:\Users\Amit\Downloads\brain.nii.gz');
 
 end;
 
@@ -10027,6 +10046,12 @@ var
  s, shaderPath, shaderName: string;
  shaderNames : TStringList;
  newMenu: TMenuItem;
+
+ SearchRec: TSearchRec;
+FolderPath: string;
+OverlayPath: string;
+
+
 begin
  {$IFDEF LCLGTK2}{$IFDEF LINUX}
  writeln('If there is a long delay at launch, ensure full GTK2 install: "sudo apt-get install appmenu-gtk2-module"');
@@ -10155,7 +10180,20 @@ begin
   //if DirectoryExists(GetFSLdir+pathdelim+ 'data'+pathdelim+'standard') then
   //   OpenFSLMenu.Visible := true;
   CreateStandardMenus(OpenAFNIMenu);
-  s := DefaultImage();
+
+  if SelectedMode = 'fusion' then
+begin
+  s := 'C:\MedMarvel\Fusion\fusion_T1.nii.gz';
+  FolderPath := 'C:\MedMarvel\Fusion\';
+end
+else
+begin
+  s := 'C:\MedMarvel\Volumetry\volumetry_T1.nii.gz';
+  FolderPath := 'C:\MedMarvel\Volumetry\';
+end;
+
+  
+
   if (length(gPrefs.InitScript) > 0) then
      s := '+'; //load borg for quick load
   {$IFNDEF MYPY}
