@@ -6114,7 +6114,12 @@ begin
   end else begin //when overlays are loaded, show color range of overlays
       gClrbar.Number := 0;
       for i := 1 to (n-1) do begin
-          if not vols.Layer(i, v) then exit;
+
+        if not vols.Layer(i, v) then continue;
+        if not LayerList.Checked[i-1] then continue;
+        
+        
+
           if (v.IsLabels) or  (v.Header.datatype = kDT_RGBA32) or (v.Header.datatype = kDT_RGB) then continue;
           gClrbar.SetLUT(i, v.GetColorTable, v.DisplayMin, v.DisplayMax, v.CX.FromZero);
           gClrbar.Number := gClrbar.Number + 1;
