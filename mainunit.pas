@@ -405,6 +405,7 @@ Open3DViewerMenu: TMenuItem;
     YTrackBar: TTrackBar;
     ZTrackBar: TTrackBar;
     procedure AfniPMenuClick(Sender: TObject);
+    procedure LoadStartupOverlays(Data: PtrInt);
     procedure AfniQMenuClick(Sender: TObject);
     procedure CenterPanelClick(Sender: TObject);
     procedure DicomDirMenuClick(Sender: TObject);
@@ -10275,6 +10276,7 @@ end;
   {$ENDIF} //if OpenGL
   vols := TNIfTIs.Create(s,  gPrefs.ClearColor, gPrefs.LoadFewVolumes, gPrefs.MaxTexMb, isOK); //to do: warning regarding multi-volume files?
   GraphShow();
+  Application.QueueAsyncCall(LoadStartupOverlays, 0);
   ViewGPU1.OnKeyPress:=ViewGPUKeyPress;
   ViewGPU1.OnKeyDown := ViewGPUKeyDown;
   ViewGPU1.OnKeyUp := ViewGPUKeyUp;
@@ -10409,6 +10411,54 @@ end;
   //isFormShown := true;
   {$ENDIF}
 end;
+
+
+procedure TGLForm1.LoadStartupOverlays(Data: PtrInt);
+var
+  SearchRec: TSearchRec;
+  FolderPath: string;
+  OverlayPath: string;
+begin
+
+  if SelectedMode = 'fusion' then
+    FolderPath := 'C:\MedMarvel\Fusion\'
+  else
+    FolderPath := 'C:\MedMarvel\Volumetry\';
+
+  if FindFirst(FolderPath + '*', faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+
+      if ((faDirectory and SearchRec.Attr) = 0) and
+         (Pos('.nii', LowerCase(SearchRec.Name)) > 0) and
+         (SearchRec.Name <> 'fusion_T1.nii.gz') and
+         (SearchRec.Name <> 'volumetry_T1.nii.gz') then
+      begin
+        OverlayPath := FolderPath + SearchRec.Name;
+
+        //ShowMessage('Loading: ' + OverlayPath);
+
+        AddLayer(OverlayPath);
+      end;
+
+    until FindNext(SearchRec) <> 0;
+
+    FindClose(SearchRec);
+  end;
+
+  UpdateLayerBox(true);
+  ViewGPU1.Invalidate;
+end;
+
+
+
+
+
+
+
+
+
+
 
 procedure TGLForm1.ViewGPUPrepare(Sender: TObject);
 begin
