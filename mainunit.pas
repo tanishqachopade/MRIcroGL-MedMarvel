@@ -9932,40 +9932,7 @@ case QuestionDlg(
 
 end;
 
-  // MedMarvel Branding Panel
-  LogoPanel := TPanel.Create(Self);
-
-  if Assigned(ToolPanel) then
-    LogoPanel.Parent := ToolPanel
-  else
-    LogoPanel.Parent := Self;
-
-  LogoPanel.Align := alTop;
-  LogoPanel.Height := 150;
-  LogoPanel.BevelOuter := bvNone;
-  LogoPanel.Color := clBlack;
-  LogoPanel.ParentColor := False;
-  LogoPanel.Caption := '';
-
-  // Logo Image
-  LogoImage := TImage.Create(Self);
-  LogoImage.Parent := LogoPanel;
-
-  // Fill entire panel
-  LogoImage.Align := alClient;
-  LogoImage.Stretch := True;
-  LogoImage.Proportional := False;
-  LogoImage.Center := False;
-
-  // Remove borders/margins
-  LogoImage.BorderSpacing.Left := 0;
-  LogoImage.BorderSpacing.Right := 0;
-  LogoImage.BorderSpacing.Top := 0;
-  LogoImage.BorderSpacing.Bottom := 0;
-
-  // Load image safely
-  if FileExists('MedMarvel_Logo.jpg') then
-    LogoImage.Picture.LoadFromFile('MedMarvel_Logo.jpg');
+ 
 
  {$IFDEF METALAPI}
  ViewGPU1 := TMetalControl.Create(CenterPanel);
