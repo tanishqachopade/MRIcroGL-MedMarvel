@@ -155,7 +155,7 @@ begin
        end;
   end;
   with lPrefs do begin
-    ColorbarVisible := true;
+    ColorbarVisible := false;
     RulerVisible := false;
     ClearColor := setRGBA( 0, 0, 0, 255);
     //ClearColor := setRGBA( 255, 255, 255, 255);

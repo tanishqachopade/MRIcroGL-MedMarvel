@@ -10451,7 +10451,12 @@ begin
   Vol1.SetColorBar(gClrBar);
   gClrbar.RulerColor := gPrefs.LineColor; //SetRGBA(Vol1.Slices.LineColor);
   RulerVisible();
-  gClrbar.isVisible := gPrefs.ColorbarVisible;
+
+  gClrbar.isVisible := false;
+VisibleClrbarMenu.checked := false;
+ 
+
+
   VisibleClrbarMenu.checked := gPrefs.ColorbarVisible;
   {$ENDIF}
   Vol1.CE.GridColor := GetRGBA(gPrefs.LineColor);
