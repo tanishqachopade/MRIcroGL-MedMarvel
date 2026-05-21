@@ -52,6 +52,7 @@ unit mainunit;
 interface
 {$include opts.inc} //for  DEFINE MOSAICS
 uses
+  process,
   {$IFDEF MATT1}umat, {$ENDIF}
   {$IFDEF METALAPI}
   	MetalPipeline,  Metal,MetalControl, mtlvolume2,
@@ -368,6 +369,8 @@ type
     LayerBox: TGroupBox;
     MainMenu: TMainMenu;
     FileMenu: TMenuItem;
+Menu3DView: TMenuItem;
+Open3DViewerMenu: TMenuItem;
     ResetDefaultsMenu: TMenuItem;
     DisplayMenu: TMenuItem;
     CoronalMenu: TMenuItem;
@@ -402,6 +405,7 @@ type
     YTrackBar: TTrackBar;
     ZTrackBar: TTrackBar;
     procedure AfniPMenuClick(Sender: TObject);
+    procedure LoadStartupOverlays(Data: PtrInt);
     procedure AfniQMenuClick(Sender: TObject);
     procedure CenterPanelClick(Sender: TObject);
     procedure DicomDirMenuClick(Sender: TObject);
@@ -669,6 +673,9 @@ type
     procedure ForceOverlayUpdate();
     procedure ZoomBtnClick(Sender: TObject);
   private
+  SelectedMode: string;
+  procedure OpenPyVistaViewer(const NiftiFile: string);
+  procedure OpenIn3DViewClick(Sender: TObject);
     //
   end;
 
@@ -736,6 +743,33 @@ begin
 {$ENDIF}
 end;
 {$ENDIF}
+
+procedure TGLForm1.OpenPyVistaViewer(const NiftiFile: string);
+var
+  AProcess: TProcess;
+begin
+  AProcess := TProcess.Create(nil);
+
+  AProcess.Executable := 'C:\Python314\python.exe';
+
+  AProcess.Parameters.Add('C:\Users\Amit\Desktop\MRIcroGL12\viewer.py');
+  AProcess.Parameters.Add(NiftiFile);
+
+  AProcess.Options := [poNewProcessGroup];
+
+  ShowMessage('Launching PyVista...');
+
+  AProcess.Execute;
+  AProcess.Free;
+end;
+
+
+procedure TGLForm1.OpenIn3DViewClick(Sender: TObject);
+begin
+  OpenPyVistaViewer('C:\Users\Amit\Downloads\brain.nii.gz');
+end;
+
+
 
 procedure GenerateClustersCore(var v: TNIfTI; thresh, mm: single; method: integer; isDarkAndBright: boolean);
 var
@@ -6080,7 +6114,12 @@ begin
   end else begin //when overlays are loaded, show color range of overlays
       gClrbar.Number := 0;
       for i := 1 to (n-1) do begin
-          if not vols.Layer(i, v) then exit;
+
+        if not vols.Layer(i, v) then continue;
+        if not LayerList.Checked[i-1] then continue;
+        
+        
+
           if (v.IsLabels) or  (v.Header.datatype = kDT_RGBA32) or (v.Header.datatype = kDT_RGB) then continue;
           gClrbar.SetLUT(i, v.GetColorTable, v.DisplayMin, v.DisplayMax, v.CX.FromZero);
           gClrbar.Number := gClrbar.Number + 1;
@@ -6134,7 +6173,7 @@ begin
        diffMM := sliceMM - endMM;
        len := diffMM.length;
        str := str + format('%0.4g×%0.4g×%0.4g -> %0.4g×%0.4g×%0.4g  = %0.4g', [sliceMM.x, sliceMM.y, sliceMM.z, endMM.x, endMM.y, endMM.z, len]);
-       caption := str;
+       Caption := 'MedMarvel Software Solutions';
        if (niftiVol.volumesLoaded = 1) then
        		SampleAlongLine(sliceMM, endMM);
        exit;
@@ -6149,7 +6188,7 @@ begin
             if not vols.Layer(i,niftiVol) then exit;
             str := str + '; ' + niftiVol.VoxIntensityString(vox);
         end;
-     caption := str;
+     Caption := 'MedMarvel Software Solutions';
 end;
 
 procedure TGLForm1.SampleAlongLine (startMM, endMM: TVec3);
@@ -9868,27 +9907,84 @@ end;
 {$ENDIF}
 
 procedure TGLForm1.FormCreate(Sender: TObject);
+var
+  LogoPanel: TPanel;
+  LogoImage: TImage;
+
 begin
- {$IFDEF METALAPI}
- ViewGPU1 :=  TMetalControl.Create(CenterPanel);
- Vol1 := TGPUVolume.Create(ViewGPU1);
- {$ELSE}
- ViewGPU1 :=  TOpenGLControl.Create(GLForm1);
- {$IFDEF COREGL}
- ViewGPU1.OpenGLMajorVersion:= 3;
- ViewGPU1.OpenGLMinorVersion:= 3;
- {$ELSE}
- ViewGPU1.OpenGLMajorVersion:= 2;
- ViewGPU1.OpenGLMinorVersion:= 1;
- {$ENDIF}
- {$IFDEF LINE3D}
- ViewGPU1.DepthBits:= 24;
- {$ELSE}
- ViewGPU1.DepthBits:= 0;
- {$ENDIF}
- Vol1 := TGPUVolume.Create(ViewGPU1);
- {$ENDIF}
+
+case QuestionDlg(
+  'MedMarvel Workflow',
+  'Select Workflow',
+  mtConfirmation,
+  [
+    mrYes, 'Fusion',
+    mrNo, 'Volumetry'
+  ],
+  ''
+) of
+
+  mrYes:
+    SelectedMode := 'fusion';
+
+  mrNo:
+    SelectedMode := 'volumetry';
+
 end;
+
+ 
+
+ {$IFDEF METALAPI}
+ ViewGPU1 := TMetalControl.Create(CenterPanel);
+ Vol1 := TGPUVolume.Create(ViewGPU1);
+ {$ELSE}
+ ViewGPU1 := TOpenGLControl.Create(GLForm1);
+
+ {$IFDEF COREGL}
+ ViewGPU1.OpenGLMajorVersion := 3;
+ ViewGPU1.OpenGLMinorVersion := 3;
+ {$ELSE}
+ ViewGPU1.OpenGLMajorVersion := 2;
+ ViewGPU1.OpenGLMinorVersion := 1;
+ {$ENDIF}
+
+ {$IFDEF LINE3D}
+ ViewGPU1.DepthBits := 24;
+ {$ELSE}
+ ViewGPU1.DepthBits := 0;
+ {$ENDIF}
+
+ Vol1 := TGPUVolume.Create(ViewGPU1);
+ {$ENDIF}
+
+ // Hide unwanted File menu items
+ OpenAltasMenu.Visible := False;
+ OpenAFNIMenu.Visible := False;
+ OpenFSLMenu.Visible := False;
+ AddOverlayMenu.Visible := True;
+ SaveMenu.Visible := False;
+ SaveNIfTIMenu.Visible := False;
+ 
+
+ // Keep only x_rain in color dropdown
+ LayerColorDrop.Items.Clear;
+ LayerColorDrop.Items.Add('x_rain');
+ LayerColorDrop.ItemIndex := 0;
+
+ // Create 3D View menu
+ Menu3DView := TMenuItem.Create(Self);
+ Menu3DView.Caption := '3D View';
+ MainMenu.Items.Add(Menu3DView);
+
+ // Create submenu item
+ Open3DViewerMenu := TMenuItem.Create(Self);
+ Open3DViewerMenu.Caption := 'Open in 3D Viewer';
+ Open3DViewerMenu.OnClick := MenuItem3Click;
+
+ Menu3DView.Add(Open3DViewerMenu);
+
+end;
+
 
 function TGLForm1.DefaultImage():string;
 var
@@ -9923,6 +10019,12 @@ var
  s, shaderPath, shaderName: string;
  shaderNames : TStringList;
  newMenu: TMenuItem;
+
+ SearchRec: TSearchRec;
+FolderPath: string;
+OverlayPath: string;
+
+
 begin
  {$IFDEF LCLGTK2}{$IFDEF LINUX}
  writeln('If there is a long delay at launch, ensure full GTK2 install: "sudo apt-get install appmenu-gtk2-module"');
@@ -10051,7 +10153,20 @@ begin
   //if DirectoryExists(GetFSLdir+pathdelim+ 'data'+pathdelim+'standard') then
   //   OpenFSLMenu.Visible := true;
   CreateStandardMenus(OpenAFNIMenu);
-  s := DefaultImage();
+
+  if SelectedMode = 'fusion' then
+begin
+  s := 'C:\MedMarvel\Fusion\fusion_T1.nii.gz';
+  FolderPath := 'C:\MedMarvel\Fusion\';
+end
+else
+begin
+  s := 'C:\MedMarvel\Volumetry\volumetry_T1.nii.gz';
+  FolderPath := 'C:\MedMarvel\Volumetry\';
+end;
+
+  
+
   if (length(gPrefs.InitScript) > 0) then
      s := '+'; //load borg for quick load
   {$IFNDEF MYPY}
@@ -10133,6 +10248,7 @@ begin
   {$ENDIF} //if OpenGL
   vols := TNIfTIs.Create(s,  gPrefs.ClearColor, gPrefs.LoadFewVolumes, gPrefs.MaxTexMb, isOK); //to do: warning regarding multi-volume files?
   GraphShow();
+  Application.QueueAsyncCall(LoadStartupOverlays, 0);
   ViewGPU1.OnKeyPress:=ViewGPUKeyPress;
   ViewGPU1.OnKeyDown := ViewGPUKeyDown;
   ViewGPU1.OnKeyUp := ViewGPUKeyUp;
@@ -10268,6 +10384,54 @@ begin
   {$ENDIF}
 end;
 
+
+procedure TGLForm1.LoadStartupOverlays(Data: PtrInt);
+var
+  SearchRec: TSearchRec;
+  FolderPath: string;
+  OverlayPath: string;
+begin
+
+  if SelectedMode = 'fusion' then
+    FolderPath := 'C:\MedMarvel\Fusion\'
+  else
+    FolderPath := 'C:\MedMarvel\Volumetry\';
+
+  if FindFirst(FolderPath + '*', faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+
+      if ((faDirectory and SearchRec.Attr) = 0) and
+         (Pos('.nii', LowerCase(SearchRec.Name)) > 0) and
+         (SearchRec.Name <> 'fusion_T1.nii.gz') and
+         (SearchRec.Name <> 'volumetry_T1.nii.gz') then
+      begin
+        OverlayPath := FolderPath + SearchRec.Name;
+
+        //ShowMessage('Loading: ' + OverlayPath);
+
+        AddLayer(OverlayPath);
+      end;
+
+    until FindNext(SearchRec) <> 0;
+
+    FindClose(SearchRec);
+  end;
+
+  UpdateLayerBox(true);
+  ViewGPU1.Invalidate;
+end;
+
+
+
+
+
+
+
+
+
+
+
 procedure TGLForm1.ViewGPUPrepare(Sender: TObject);
 begin
  {$IFDEF METALAPI}
@@ -10287,7 +10451,12 @@ begin
   Vol1.SetColorBar(gClrBar);
   gClrbar.RulerColor := gPrefs.LineColor; //SetRGBA(Vol1.Slices.LineColor);
   RulerVisible();
-  gClrbar.isVisible := gPrefs.ColorbarVisible;
+
+  gClrbar.isVisible := false;
+VisibleClrbarMenu.checked := false;
+ 
+
+
   VisibleClrbarMenu.checked := gPrefs.ColorbarVisible;
   {$ENDIF}
   Vol1.CE.GridColor := GetRGBA(gPrefs.LineColor);
