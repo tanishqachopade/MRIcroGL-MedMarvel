@@ -52,6 +52,9 @@ unit mainunit;
 interface
 {$include opts.inc} //for  DEFINE MOSAICS
 uses
+   Windows,
+  ShellApi,
+  
   process,
   {$IFDEF MATT1}umat, {$ENDIF}
   {$IFDEF METALAPI}
@@ -10156,13 +10159,13 @@ begin
 
   if SelectedMode = 'fusion' then
 begin
-  s := 'C:\MedMarvel\Fusion\fusion_T1.nii.gz';
-  FolderPath := 'C:\MedMarvel\Fusion\';
+  s := 'Fusion/fusion_T1.nii.gz';
+  FolderPath := 'Fusion/';
 end
 else
 begin
-  s := 'C:\MedMarvel\Volumetry\volumetry_T1.nii.gz';
-  FolderPath := 'C:\MedMarvel\Volumetry\';
+  s := 'Volumetry/volumetry_T1.nii.gz';
+  FolderPath := 'Volumetry/';
 end;
 
   
