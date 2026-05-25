@@ -71,7 +71,7 @@ uses
   {$ENDIF} //if MYPY
   {$IFDEF Darwin} MacOSAll, CocoaAll,{$ENDIF}
   {$IFDEF LCLCocoa}SysCtl, {$IFDEF DARKMODE}nsappkitext, {$ENDIF}{$IFDEF NewCocoa} UserNotification,{$ENDIF} {$ENDIF}
-  {$IFDEF UNIX}Process,{$ELSE} Windows,{$ENDIF}
+ 
   {$WARN 5024 OFF}LazVersion,{$WARN 5024 ON}
   ctypes, resize, ustat,  tiff2nifti, //LCLMessageGlue,
   lcltype, GraphType, Graphics, dcm_load, crop, intensityfilter,
