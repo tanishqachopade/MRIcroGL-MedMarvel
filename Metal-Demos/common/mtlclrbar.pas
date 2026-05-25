@@ -729,7 +729,7 @@ begin
   if isRedraw then
      CreateClrbar;
   if gnface < 1 then exit;
-  //glViewport(0, 0, Width, Height); //required for form resize
+  //glViewport(60, 150, Width, Height); //required for form resize
   glControl.SetViewport();
   glDisable(GL_DEPTH_TEST); 
   glEnable (GL_BLEND);

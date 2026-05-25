@@ -477,7 +477,7 @@ begin
   normalMatrix := modelMatrix.Inverse.Transpose;
   modelViewProjectionMatrix := ( projectionMatrix * modelMatrix);
   //normalMatrix := modelMatrix.Inverse.Transpose;
-  glViewport(0, 0, glControl.ClientWidth, glControl.ClientHeight); //required for form resize
+  glViewport(60, 150, glControl.ClientWidth, glControl.ClientHeight); //required for form resize
   //glClearColor( ClearColor.R/255, ClearColor.G/255, ClearColor.B/255, 1.0); //Set blue background
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   glEnable (GL_BLEND);

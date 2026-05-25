@@ -95,7 +95,7 @@ begin
   h := height;
   {$ENDIF}
   if (fTotalHeight < 1) or (fTotalWidth < 1) then begin
-       glViewport(0, 0, w, h);
+       glViewport(60, 150, w, h);
       exit;
   end;
   //glViewport(fTileLeft, fTileBottom, w, h);

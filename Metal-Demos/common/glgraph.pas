@@ -372,7 +372,7 @@ begin
        gpuTxt.DrawText();
   MTLEndFrame;
   {$ELSE}
-  glViewPort(0,0,fromView.ClientWidth, fromView.ClientHeight);
+  glViewPort(60, 150,fromView.ClientWidth, fromView.ClientHeight); //moving to left TMC
   glClearColor(BackColor.R/255, BackColor.G/255, BackColor.B/255, 1.0); //Set gray background
   glClear(GL_COLOR_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
