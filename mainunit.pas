@@ -52,9 +52,10 @@ unit mainunit;
 interface
 {$include opts.inc} //for  DEFINE MOSAICS
 uses
-   Windows,
+    {$IFDEF WINDOWS}
+  Windows,
   ShellApi,
-  
+  {$ENDIF}
   process,
   {$IFDEF MATT1}umat, {$ENDIF}
   {$IFDEF METALAPI}
