@@ -9941,6 +9941,7 @@ end;
  {$IFDEF METALAPI}
  ViewGPU1 := TMetalControl.Create(CenterPanel);
  Vol1 := TGPUVolume.Create(ViewGPU1);
+ gPrefs.LineWidth := 1;
  {$ELSE}
  ViewGPU1 := TOpenGLControl.Create(GLForm1);
 
@@ -9959,7 +9960,78 @@ end;
  {$ENDIF}
 
  Vol1 := TGPUVolume.Create(ViewGPU1);
+ gPrefs.LineWidth := 1;
  {$ENDIF}
+
+ // Hide unused UI
+SliceABtn.Visible := False;
+SlicePBtn.Visible := False;
+SliceSBtn.Visible := False;
+SliceIBtn.Visible := False;
+SliceLBtn.Visible := False;
+SliceRBtn.Visible := False;
+
+CoordLabel.Visible := False;
+XCoordEdit.Visible := False;
+YCoordEdit.Visible := False;
+ZCoordEdit.Visible := False;
+
+LineBox.Visible := False;
+ClipBox.Visible := False;
+MosaicBox.Visible := False;
+ShaderBox.Visible := False;
+
+// Layer controls
+LayerDarkLabel.Visible := False;
+LayerDarkEdit.Visible := False;
+LayerBrightLabel.Visible := False;
+LayerBrightEdit.Visible := False;
+LayerOptionsBtn.Visible := False;
+LayerAfniBtn.Visible := False;
+LayerAfniDrop.Visible := False;
+
+// Main viewer
+GLForm1.Color := clWhite;
+CenterPanel.Color := clBlack;
+
+// Sidebar
+ToolPanel.Color := $F5F7FA;
+ToolPanel.ParentColor := False;
+
+// Panels
+LayerBox.Color := ToolPanel.Color;
+LayerBox.ParentColor := False;
+
+SliceBox.Color := ToolPanel.Color;
+SliceBox.ParentColor := False;
+
+LayerBox.Font.Color := clBlack;
+SliceBox.Font.Color := clBlack;
+
+LayerBox.Font.Style := [fsBold];
+SliceBox.Font.Style := [fsBold];
+
+LayerBox.Font.Color := $3D7BFF;
+SliceBox.Font.Color := $3D7BFF;
+
+// Modern fonts
+LayerBox.Font.Name := 'Segoe UI';
+LayerBox.Font.Size := 10;
+
+SliceBox.Font.Name := 'Segoe UI';
+SliceBox.Font.Size := 10;
+
+ToolPanel.Font.Name := 'Segoe UI';
+ToolPanel.Font.Size := 10;
+
+
+LayerBox.BorderSpacing.Around := 12;
+SliceBox.BorderSpacing.Around := 12;
+
+
+LayerAlphaTrack.Height := 24;
+SliceZoom.Height := 24;
+
 
  // Hide unwanted File menu items
  OpenAltasMenu.Visible := False;

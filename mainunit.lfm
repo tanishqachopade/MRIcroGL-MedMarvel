@@ -35,14 +35,15 @@ object GLForm1: TGLForm1
       Left = 1
       Height = 579
       Top = 1
-      Width = 268
+      Width = 320
       HorzScrollBar.Page = 1
       HorzScrollBar.Visible = False
       VertScrollBar.Page = 579
       Align = alLeft
+      BorderSpacing.Around = 8
       BorderStyle = bsNone
       ClientHeight = 579
-      ClientWidth = 253
+      ClientWidth = 304
       ParentFont = False
       TabOrder = 0
       OnDblClick = ToolPanelDblClick
@@ -53,7 +54,7 @@ object GLForm1: TGLForm1
         Width = 253
         Align = alTop
         AutoSize = True
-        Caption = 'Layers'
+        Caption = 'Viewer Controls'
         ClientHeight = 205
         ClientWidth = 243
         Constraints.MinWidth = 10
@@ -984,7 +985,7 @@ object GLForm1: TGLForm1
         Width = 253
         Align = alTop
         AutoSize = True
-        Caption = '2D Slice Selection'
+        Caption = 'Navigation'
         ClientHeight = 173
         ClientWidth = 243
         Constraints.MinWidth = 10
