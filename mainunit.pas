@@ -52,6 +52,10 @@ unit mainunit;
 interface
 {$include opts.inc} //for  DEFINE MOSAICS
 uses
+    {$IFDEF WINDOWS}
+  Windows,
+  ShellApi,
+  {$ENDIF}
   process,
   {$IFDEF MATT1}umat, {$ENDIF}
   {$IFDEF METALAPI}
@@ -71,7 +75,7 @@ uses
   {$ENDIF} //if MYPY
   {$IFDEF Darwin} MacOSAll, CocoaAll,{$ENDIF}
   {$IFDEF LCLCocoa}SysCtl, {$IFDEF DARKMODE}nsappkitext, {$ENDIF}{$IFDEF NewCocoa} UserNotification,{$ENDIF} {$ENDIF}
-  {$IFDEF UNIX}Process,{$ELSE} Windows,{$ENDIF}
+ 
   {$WARN 5024 OFF}LazVersion,{$WARN 5024 ON}
   ctypes, resize, ustat,  tiff2nifti, //LCLMessageGlue,
   lcltype, GraphType, Graphics, dcm_load, crop, intensityfilter,
@@ -405,6 +409,7 @@ Open3DViewerMenu: TMenuItem;
     YTrackBar: TTrackBar;
     ZTrackBar: TTrackBar;
     procedure AfniPMenuClick(Sender: TObject);
+    procedure LoadStartupOverlays(Data: PtrInt);
     procedure AfniQMenuClick(Sender: TObject);
     procedure CenterPanelClick(Sender: TObject);
     procedure DicomDirMenuClick(Sender: TObject);
@@ -6113,7 +6118,12 @@ begin
   end else begin //when overlays are loaded, show color range of overlays
       gClrbar.Number := 0;
       for i := 1 to (n-1) do begin
-          if not vols.Layer(i, v) then exit;
+
+        if not vols.Layer(i, v) then continue;
+        if not LayerList.Checked[i-1] then continue;
+        
+        
+
           if (v.IsLabels) or  (v.Header.datatype = kDT_RGBA32) or (v.Header.datatype = kDT_RGB) then continue;
           gClrbar.SetLUT(i, v.GetColorTable, v.DisplayMin, v.DisplayMax, v.CX.FromZero);
           gClrbar.Number := gClrbar.Number + 1;
@@ -6167,7 +6177,7 @@ begin
        diffMM := sliceMM - endMM;
        len := diffMM.length;
        str := str + format('%0.4g×%0.4g×%0.4g -> %0.4g×%0.4g×%0.4g  = %0.4g', [sliceMM.x, sliceMM.y, sliceMM.z, endMM.x, endMM.y, endMM.z, len]);
-       caption := str;
+       Caption := 'MedVirtuso - MedMarvel Software Solutions';
        if (niftiVol.volumesLoaded = 1) then
        		SampleAlongLine(sliceMM, endMM);
        exit;
@@ -6182,7 +6192,7 @@ begin
             if not vols.Layer(i,niftiVol) then exit;
             str := str + '; ' + niftiVol.VoxIntensityString(vox);
         end;
-     caption := str;
+     Caption := 'MedVirtuso - MedMarvel Software Solutions';
 end;
 
 procedure TGLForm1.SampleAlongLine (startMM, endMM: TVec3);
@@ -9926,40 +9936,7 @@ case QuestionDlg(
 
 end;
 
-  // MedMarvel Branding Panel
-  LogoPanel := TPanel.Create(Self);
-
-  if Assigned(ToolPanel) then
-    LogoPanel.Parent := ToolPanel
-  else
-    LogoPanel.Parent := Self;
-
-  LogoPanel.Align := alTop;
-  LogoPanel.Height := 150;
-  LogoPanel.BevelOuter := bvNone;
-  LogoPanel.Color := clBlack;
-  LogoPanel.ParentColor := False;
-  LogoPanel.Caption := '';
-
-  // Logo Image
-  LogoImage := TImage.Create(Self);
-  LogoImage.Parent := LogoPanel;
-
-  // Fill entire panel
-  LogoImage.Align := alClient;
-  LogoImage.Stretch := True;
-  LogoImage.Proportional := False;
-  LogoImage.Center := False;
-
-  // Remove borders/margins
-  LogoImage.BorderSpacing.Left := 0;
-  LogoImage.BorderSpacing.Right := 0;
-  LogoImage.BorderSpacing.Top := 0;
-  LogoImage.BorderSpacing.Bottom := 0;
-
-  // Load image safely
-  if FileExists('MedMarvel_Logo.jpg') then
-    LogoImage.Picture.LoadFromFile('MedMarvel_Logo.jpg');
+ 
 
  {$IFDEF METALAPI}
  ViewGPU1 := TMetalControl.Create(CenterPanel);
@@ -10183,13 +10160,13 @@ begin
 
   if SelectedMode = 'fusion' then
 begin
-  s := 'C:\MedMarvel\Fusion\fusion_T1.nii.gz';
-  FolderPath := 'C:\MedMarvel\Fusion\';
+  s := 'Fusion/fusion_T1.nii.gz';
+  FolderPath := 'Fusion/';
 end
 else
 begin
-  s := 'C:\MedMarvel\Volumetry\volumetry_T1.nii.gz';
-  FolderPath := 'C:\MedMarvel\Volumetry\';
+  s := 'Volumetry/volumetry_T1.nii.gz';
+  FolderPath := 'Volumetry/';
 end;
 
   
@@ -10275,6 +10252,7 @@ end;
   {$ENDIF} //if OpenGL
   vols := TNIfTIs.Create(s,  gPrefs.ClearColor, gPrefs.LoadFewVolumes, gPrefs.MaxTexMb, isOK); //to do: warning regarding multi-volume files?
   GraphShow();
+  Application.QueueAsyncCall(LoadStartupOverlays, 0);
   ViewGPU1.OnKeyPress:=ViewGPUKeyPress;
   ViewGPU1.OnKeyDown := ViewGPUKeyDown;
   ViewGPU1.OnKeyUp := ViewGPUKeyUp;
@@ -10410,6 +10388,54 @@ end;
   {$ENDIF}
 end;
 
+
+procedure TGLForm1.LoadStartupOverlays(Data: PtrInt);
+var
+  SearchRec: TSearchRec;
+  FolderPath: string;
+  OverlayPath: string;
+begin
+
+  if SelectedMode = 'fusion' then
+    FolderPath := 'C:\MedMarvel\Fusion\'
+  else
+    FolderPath := 'C:\MedMarvel\Volumetry\';
+
+  if FindFirst(FolderPath + '*', faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+
+      if ((faDirectory and SearchRec.Attr) = 0) and
+         (Pos('.nii', LowerCase(SearchRec.Name)) > 0) and
+         (SearchRec.Name <> 'fusion_T1.nii.gz') and
+         (SearchRec.Name <> 'volumetry_T1.nii.gz') then
+      begin
+        OverlayPath := FolderPath + SearchRec.Name;
+
+        //ShowMessage('Loading: ' + OverlayPath);
+
+        AddLayer(OverlayPath);
+      end;
+
+    until FindNext(SearchRec) <> 0;
+
+    FindClose(SearchRec);
+  end;
+
+  UpdateLayerBox(true);
+  ViewGPU1.Invalidate;
+end;
+
+
+
+
+
+
+
+
+
+
+
 procedure TGLForm1.ViewGPUPrepare(Sender: TObject);
 begin
  {$IFDEF METALAPI}
@@ -10429,7 +10455,12 @@ begin
   Vol1.SetColorBar(gClrBar);
   gClrbar.RulerColor := gPrefs.LineColor; //SetRGBA(Vol1.Slices.LineColor);
   RulerVisible();
-  gClrbar.isVisible := gPrefs.ColorbarVisible;
+
+  gClrbar.isVisible := false;
+VisibleClrbarMenu.checked := false;
+ 
+
+
   VisibleClrbarMenu.checked := gPrefs.ColorbarVisible;
   {$ENDIF}
   Vol1.CE.GridColor := GetRGBA(gPrefs.LineColor);
