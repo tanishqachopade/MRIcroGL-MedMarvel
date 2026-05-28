@@ -10040,7 +10040,8 @@ SliceZoom.Height := 24;
  AddOverlayMenu.Visible := True;
  SaveMenu.Visible := False;
  SaveNIfTIMenu.Visible := False;
- 
+
+
 
  // Keep only x_rain in color dropdown
  LayerColorDrop.Items.Clear;
@@ -10102,6 +10103,17 @@ OverlayPath: string;
 
 
 begin
+
+  EditMenu.Visible := False;
+  ImportMenu.Visible := False;
+  DrawMenu.Visible := False;
+  GraphMenu.Visible := False;
+  ScriptingMenu.Visible := False;
+  Menu3DView.Visible := False;
+ 
+
+
+
  {$IFDEF LCLGTK2}{$IFDEF LINUX}
  writeln('If there is a long delay at launch, ensure full GTK2 install: "sudo apt-get install appmenu-gtk2-module"');
  {$ENDIF}{$ENDIF}
