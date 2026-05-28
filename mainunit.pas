@@ -10193,15 +10193,15 @@ begin
   //   OpenFSLMenu.Visible := true;
   CreateStandardMenus(OpenAFNIMenu);
 
-  if SelectedMode = 'fusion' then
+if SelectedMode = 'fusion' then
 begin
-  s := 'Fusion/fusion_T1.nii.gz';
-  FolderPath := 'Fusion/';
+  s := ExtractFilePath(ParamStr(0)) + 'Fusion\fusion_T1.nii.gz';
+  FolderPath := ExtractFilePath(ParamStr(0)) + 'Fusion\';
 end
 else
 begin
-  s := 'Volumetry/volumetry_T1.nii.gz';
-  FolderPath := 'Volumetry/';
+  s := ExtractFilePath(ParamStr(0)) + 'Volumetry\volumetry_T1.nii.gz';
+  FolderPath := ExtractFilePath(ParamStr(0)) + 'Volumetry\';
 end;
 
   
