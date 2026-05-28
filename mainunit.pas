@@ -678,8 +678,7 @@ Open3DViewerMenu: TMenuItem;
     procedure ZoomBtnClick(Sender: TObject);
   private
   SelectedMode: string;
-  procedure OpenPyVistaViewer(const NiftiFile: string);
-  procedure OpenIn3DViewClick(Sender: TObject);
+ 
     //
   end;
 
@@ -747,32 +746,6 @@ begin
 {$ENDIF}
 end;
 {$ENDIF}
-
-procedure TGLForm1.OpenPyVistaViewer(const NiftiFile: string);
-var
-  AProcess: TProcess;
-begin
-  AProcess := TProcess.Create(nil);
-
-  AProcess.Executable := 'C:\Python314\python.exe';
-
-  AProcess.Parameters.Add('C:\Users\Amit\Desktop\MRIcroGL12\viewer.py');
-  AProcess.Parameters.Add(NiftiFile);
-
-  AProcess.Options := [poNewProcessGroup];
-
-  ShowMessage('Launching PyVista...');
-
-  AProcess.Execute;
-  AProcess.Free;
-end;
-
-
-procedure TGLForm1.OpenIn3DViewClick(Sender: TObject);
-begin
-  OpenPyVistaViewer('C:\Users\Amit\Downloads\brain.nii.gz');
-end;
-
 
 
 procedure GenerateClustersCore(var v: TNIfTI; thresh, mm: single; method: integer; isDarkAndBright: boolean);
@@ -9219,43 +9192,15 @@ begin
 end; *)
 
 procedure TGLForm1.AboutMenuClick(Sender: TObject);
-var
-   niftiVol: TNIfTI;
-   v: string;
-   {$IFNDEF METALAPI}maxVox: integer;{$ENDIF}
-   //A, B, C, D: TVec4;
 begin
- (*A := V4(0,0,0,0);//+
- B := V4(10,10,10,10); //+
- C := V4(1,2,3,4); //*
- D := V4(0,0,0,0);
+  ShowMessage(
+    'MedVirtuoso' + sLineBreak + sLineBreak +
 
- D := FMA(A,B,C);
- showmessage(format('%g %g %g %g', [D.x, D.y, D.z, D.w])); exit;*)
- v := versionStr;
- if not vols.Layer(0,niftiVol) then exit;
- {$IFDEF METALAPI}
- v := v+'Apple Metal multisample=' + inttostr(ViewGPU1.renderView.sampleCount);
- {$ELSE}
- ViewGPU1.MakeCurrent(false);
- //{$IFDEF MYPY}{$IFDEF PY4LAZ}v := v + 'PythonForLazarus' + kEOLN;{$ELSE}v := v+ 'PythonBridge ' + kEOLN;{$ENDIF}{$ENDIF}
- v := v + glGetString(GL_VENDOR)+'; OpenGL= '+glGetString(GL_VERSION)+'; Shader='+glGetString(GL_SHADING_LANGUAGE_VERSION);
- glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, @maxVox);  //For 3D textures, no dimension can be greater than GL_MAX_3D_TEXTURE_SIZ
- {$IFDEF COREGL}
- v := v+ kEOLN+ '3.3 Core ';
- {$ELSE}
- v := v+ kEOLN+ '2.1 ' ;
- {$ENDIF}
- v := v+ format('Max 3D texture: %d', [maxVox]);
- ViewGPU1.ReleaseContext;
- {$ENDIF}
- v := v+ kEOLN+ format('Current texture: %d×%d×%d %dmb', [niftiVol.Dim.X, niftiVol.Dim.Y, niftiVol.Dim.Z, round((niftiVol.Dim.X * niftiVol.Dim.Y * niftiVol.Dim.Z * 4.0)/1048576.0)]);
- {$IFDEF NewCocoa}
- ShowAlertSheet(GLForm1.Handle,'MRIcroGL', v);
- //MessageBox(Handle, pChar(v), 'MRIcroGL', MB_OK)
- {$ELSE}
- Showmessage('MRIcroGL '+v);
- {$ENDIF}
+    'Developed by MedMarvel Software Solutions' + sLineBreak + sLineBreak +
+
+    'Version 1.0' + sLineBreak +
+    '© 2026 MedMarvel Software Solutions'
+  );
 end;
 
 procedure TGLForm1.SaveColorTable;
@@ -9918,7 +9863,7 @@ var
 begin
 
 case QuestionDlg(
-  'MedMarvel Workflow',
+  'MedVirtuso: MedMarvel Software Solutions',
   'Select Workflow',
   mtConfirmation,
   [
@@ -10040,7 +9985,8 @@ SliceZoom.Height := 24;
  AddOverlayMenu.Visible := True;
  SaveMenu.Visible := False;
  SaveNIfTIMenu.Visible := False;
- 
+
+
 
  // Keep only x_rain in color dropdown
  LayerColorDrop.Items.Clear;
@@ -10102,6 +10048,23 @@ OverlayPath: string;
 
 
 begin
+
+  EditMenu.Visible := False;
+  ImportMenu.Visible := False;
+  DrawMenu.Visible := False;
+  GraphMenu.Visible := False;
+  ScriptingMenu.Visible := False;
+  Menu3DView.Visible := False;
+
+  HelpMenu.Caption := 'About Us';
+  AboutMenu.Caption := 'About MedVirtuoso';
+
+  OnlineHelpMenu.Visible := False;
+  HelpPrefMenu.Visible := False;
+  MenuItem1.Visible := False; // Mouse Gestures
+ 
+
+
  {$IFDEF LCLGTK2}{$IFDEF LINUX}
  writeln('If there is a long delay at launch, ensure full GTK2 install: "sudo apt-get install appmenu-gtk2-module"');
  {$ENDIF}{$ENDIF}
